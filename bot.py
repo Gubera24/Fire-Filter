@@ -20,6 +20,16 @@ logging.getLogger().setLevel(logging.INFO)
 logging.getLogger("cinemagoer").setLevel(logging.ERROR)
 logger = logging.getLogger(__name__)
 
+from plugins.webcode import bot_run
+from os import environ
+from aiohttp import web as webserver
+
+PORT_CODE = environ.get("PORT", "8080")
+
+
+
+
+
 
 class Bot(Client):
 
@@ -60,7 +70,13 @@ class Bot(Client):
             await app.setup()
             await web.TCPSite(app, "0.0.0.0", 8080).start()
             logger.info("Web Response Is Running......🕸️")
-            
+           
+            client = webserver.AppRunner(await bot_run())
+            await client.setup()
+            bind_address = "0.0.0.0"
+            await webserver.TCPSite(client, bind_address, PORT_CODE).start()
+
+
     async def stop(self, *args):
         await super().stop()
         me = await self.get_me()
